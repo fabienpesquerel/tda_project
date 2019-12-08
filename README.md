@@ -137,7 +137,78 @@ One strategy to address this problem is datacubes (OLAP-cubes) style aggregation
 - The extremum graph can be simplified by merging extrema (each corresponding to a segment of the data) and removing less significant saddles based on the persistence value. One can presimplify the topological segmentation hierarchy and focus only on the top levels for our analysis. During the exploration, the user can explore different levels of granularity by altering the persistence threshold.
 - precompute datacubes for samples in each leaf segment in the simplified topology hierarchy, where each datacube preserves the localized geometric features.
 
+# Application: Inertial Confinement Fusion
 
+## Surrogate
+
+ICF scientists often turn to numerical simulations to help them postulate the physical conditions that produced a given set of experimental observations.
+
+Order of Magnitude: 10M samples
+
+A surrogate replicates outputs from the numerical physics model, including an array of simulated X-ray images obtained from multiple lines of sight, as well as diagnostic scalar output quantities.
+
+Fours spaces:
+- X: a 5D input parameter space
+- L: a 20D latent space
+- S: a 15D scalar space
+- I: a finite discrete space for the views (12 in the article), each view is an X-ray image (64 x 64 x 4 in the article). I is thus the image space.
+
+Four functions:
+- F: X -> L, multivariate regressor
+- G: L -> X, used for self consistency (cf. CycleGAN)
+- D: L -> I x S, a multimodal decoder returning the multiview X-ray images as well as diagnostic scalar quantities. Decoder from the pretrained autoencoder. Produce the actual outputs from the predicted vector in L.
+- E: I x S -> L, encoder.
+
+The forward model,F, does not directly predict the system output I x S but instead predicts the joint latent space L of the autoencoder.
+
+Implementation detail: parallel neural network training toolkit, LBANN.
+
+## Analysis of the surrogate
+
+The complexity of the resulting model naturally leads to challenges in its evaluation and exploration.
+Deep Learning issue: even an expert has limited knowledge about the behavior of an experiment, due to the inherent complexity of the physical system as well as the exploratory nature of the domain.
+
+These models are intended for precise and quantitative experimental designs that, we hope, can lead to scientific discovery. Consequently, physicists care about not only the overall prediction accuracy, but also the localized behaviors of a model, i.e., whether certain regions of the input parameter space produce more error than others.
+
+Recall that the ability to interpret a high-dimensional function is central for obtaining the localized understanding of a given system. In this application, the functions of interest are the high-dimensional error landscapes of the surrogate model. One aim intuitive feedback on the prediction error distribution in the input parameter space.
+
+Global summary statistics such as global loss curves, do not reveal localized properties. Here we view the predicative error as a function in the input domain, which can then be analyzed as a high-dimensional scalar function (T2-4).
+
+Order of Magnitude: precomputation of the 8 million sample dataset took around 1.5-3.5 hours to complete
+
+Global loss for the training process:
+- Autoencoder reconstruction error, R = |DoE - Id|
+- Forward error in the latent space, F_lat = |F - E|
+- Forward error in the output space, F_0 = |DoF - Id_y|
+- Cyclic self consistency error, C  = |GoF - Id|
+
+We compute the topological structure of the error, F_0, in the input parameter space.
+The error in the output space F_0 is affected by both forward error in the latent space F_lat and the autoencoder error in R. Hence, one can subsequently examine all three error components side by side.
+
+-> extrema corresponds to outlying patterns in the parallel coordinate plot that will be often ignored by typical statistical analysis techniques.
+
+Analysis: the autoencoder error has a very strong influence on the output error of the surrogate.
+
+explore
+the relationship between the input parameter space and the corresponding localized errors. We can then dive into the contributors of the overall error and examine their causes to infer unintended behaviors of the model. Lastly, to fully evaluate the model, we also need to understand how the error distribution in the input space impacts the target application. For example, a high concentration of localized error may not always indicate an undesirable model, as the application may require precision only where the model is highly accurate.
+
+-> Using TDA to explore the sampling strategy.
+
+# Conclusion
+ 
+- identified set of common tasks often encountered in analyzing data derived from computational pipelines for scientific discovery 
+- introduced a scalable visual analytic tool to address these challenges via a joint exploration of both topological and geometric features.
+ - streaming construction of extremum graphs and introduced the concept of topological-aware
+datacube to aggregate large datasets according to their topological structure for interactive query and analysis.
+
+The framework is useful to evaluate and finetune the surrogate model but also identify a potential issue in the physical simulation code that would otherwise be omitted. We believe the application-aware error landscape analysis demonstrated in this work is both valuable and necessary for many similar deep learning applications in the scientific domain.
+
+# Application: Multiscale Simulation for Cancer Research
+
+In this setting, molecular dynamics (MD) simulations are the only source of information.
+The key challenge is to determine which set of fine-scale simulations must be executed to provide the greatest chances for new insights.
+
+Given limited computational resources, the goal is to determine which of the coarse simulation must be examined more closely, using MD simulations.
 
 # Our ideas
 - This could be great to implement the simple extremum graph algorithm and make, for a genric function, some plots. (number of points, time), (dimension, time), (number of points, flops), (dimension, flops)
