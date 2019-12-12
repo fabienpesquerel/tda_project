@@ -12,8 +12,8 @@ of the time budget spendable on each subsection. We should aim for ~ 1 slide/min
 | Contribution : Handling the Lens       |              2 min |
 | Topology-aware datacubes               |              1 min |
 | Description of the panes               |              2 min |
-| Application : model analysis           |              1 min |
-| Application : sampling evaluation      |              1 min |
+| Application : model analysis           |         1 min 30 s |
+| Application : sampling evaluation      |               30 s |
 | Conclusion                             |              1 min |
 
 ## Problem Statement
@@ -69,7 +69,26 @@ while maintaining ability to quickly display a close-up when a point is selected
 said overview, making this tool usable in the context of deep neural networks or
 high-dimensional sampling evaluation.
 
-TODO: Present the said algorithm and explain its scalability
+### Discrete-support Extremum Graph
+
+The full Morse complex is computationnaly innaccessible for high dimensions.
+An extremum graph (maxima and saddles connecting them) is used instead.
+
+Given a neighborhood graph of the data points, the gradient is approximated
+as the steepest ascending edge incident to each vertex, to deal with the discrete support.
+
+The extremum graph is obtained by following ascending integral lines to a maximum,
+computable via a union-find structure in linear time in the number of data points.
+
+### Streaming Extremum Graph
+
+The size of the neighborhood graph increases dramatically faster than the number of
+data points in most applications.
+
+Solution: construct a reasonably fast neighborhood look up structure without storing
+the full graph in memory.
+Visit edges once and maintain the steepest ascending neighbor of each vertex.
+Aggregate this into the extremum graph as previously in a second pass.
 
 
 ## Topology-aware datacubes
@@ -94,7 +113,23 @@ while maintaining the topological feature hierarchy.
 
 ### The Overview : Topological Spines
 
-TODO: 1-min presentation of the Topological Spines paper
+Standardised planar representation of the extremum graph of a function, with nested colored
+disks around each extremum to give more information about the local variations of a function
+around its critical points.
+
+Points are connected along steepest ascending lines, preserving local information around extrema.
+
+The distance between critical points is not representative of the real distance between extrema,
+but the radius of a disk around each extremum is defined by the volume of data around the said
+extremum corresponding to each isovalue.
+
+Rapid changes in the the radii of disks thus indicate steep extrema, where more evenly spaced radii
+indicate shallower slopes to an extremum. The color of each disk represents the function's value.
+
+Although the distance between extrema is not preserved, the relative location of extrema
+is roughly similar since neighborhood between extrema is preserved by construction of the graph.
+
+Function values below a certain threshold are not represented to keep the representation sparser.
 
 ### The Neighborhood : Density Scatterplots
 
@@ -134,15 +169,45 @@ orderings is unmanageable.
 
 ### Deep Model Analysis : Inertial Confinement Fusion
 
-See [Fabien's notes](README.md)
+##### Experimental Setup
+
+Goal : Obtain X-ray images of controlled fusion experiment, for different experimental conditions.
+
+Trick : Train a neural network to predict the X-ray scans from the experimental conditions,
+along with some handcrafted diagnostic scalar quantities.
+Augment this by a reverse network for self-consistency, predicting conditions from X-ray
+images, and guarantee that both compositions of the two give an identity.
+Further constrain both model by enforcing self-consistency in an intermediate latent space.
+
+##### Issues with the deep model
+
+Evaluation issue : outside of actual experimental data, even experts have limited
+knowledge about the outcome of experiments.
+
+Interpretation issue : the ability to interpret the results obtained is key to
+understand the underlying model, but deep learning provides no such interpretability.
+We need to study the result *a posteriori* to add a form of intuition to the outcome.
+
+Confidence issue : all models have limits. Knowing where the model is accurate and
+where it must not be blindly trusted is a local property of the function, crucial to
+physicists but not present in aggregated statistics such as global loss curves.
+Outliers like some extrema in the prediction are critical but easily discarded by
+typical statistical tools.
+
+##### Evaluation of the presented method
 
 Conclusion: Overview brings some value, neighborhood visualization's value unclear.
 Do the neighborhood visualizations mean anything ? Do they bring information about the network ?
 Can we link information about the network with the plots we see ? Unclear.
 
+
 ### Distribution Comparison : Multiscale Simulation for Cancer Research
 
-See [Fabien's notes](README.md)
+Setting : Importance sampling, sample fewer times from a different distribution in a
+way that preserve the statistical properties of interest of an initial distribution.
+
+Here two functions are analysed : the statistics on the original and very large sample,
+and the same function on fewer samples drawn according to the importance sampling procedure.
 
 Conclusion : Relevant samplings should produce roughly the same plots, regardless of
 the projection chosen. Here the choice of visualization is not so critical because
@@ -152,9 +217,17 @@ No positive information on the match though : there can only be negative info in
 
 ## Conclusion
 
-TODO: Maybe a note on the drawbacks of this method, and more specifically the choice of visualizations.
+- Very interesting idea : topology as lens rather than as an object in itself.
+  <br/>
+  When exploring a large space, topology is a tool that makes sense, preserves interesting
+  properties, and allows an analysis with theoretical guarantees, where typical
+  high-dimensional evaluation tools have obscure constructions and are hard to trust.
+- Questionable neighborhood visualisation choices
+- Lack of implementation details
+  - No source code
+  - No pseudocode / clear algorithm
+  - No indications on topology-aware datacube construction
 
-TODO: Wrap-up slide
 
 
 # Resources
