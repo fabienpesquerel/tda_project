@@ -5,16 +5,18 @@ Constraints : 10 min + 2 min questions
 Here is a proposal for the skeleton of the presentation, with approximations
 of the time budget spendable on each subsection. We should aim for ~ 1 slide/min.
 
-| Section                                | Time estimate      |
-|:---------------------------------------|-------------------:|
-| Problem statement                      |              1 min |
-| The Topological Lens                   |              1 min |
-| Contribution : Handling the Lens       |              2 min |
-| Topology-aware datacubes               |              1 min |
-| Description of the panes               |              2 min |
-| Application : model analysis           |         1 min 30 s |
-| Application : sampling evaluation      |               30 s |
-| Conclusion                             |              1 min |
+| Section                                    | Time estimate      | Assignement |
+|:-------------------------------------------|-------------------:|-------------|
+| Problem statement                          |              1 min | Tamim       |
+| The Topological Lens                       |              1 min | David       |
+| Contribution : Handling the Lens (skeleton)|              1 min | Fabien      |
+| Contribution : Handling the Lens (stream)  |              1 min | David       |
+| Topology-aware datacubes                   |              1 min | Fabien      |
+| Description of the panes (spines)          |              1 min | David       |
+| Description of the panes (plots)           |              1 min | Tamim       |
+| Application : model analysis               |              1 min | Fabien      |
+| Application : sampling evaluation          |               30 s | David       |
+| Conclusion                                 |              1 min | Tamim       |
 
 ## Problem Statement
 
